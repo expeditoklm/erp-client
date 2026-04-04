@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vérifier l'authenticité — TPE QR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg:      #0d1117; --surface: #161b22; --border: #21262d;
+    --accent:  #3fb950; --danger:  #f85149; --warn:   #d29922;
+    --text:    #e6edf3; --muted:   #7d8590;
+    --mono: 'DM Mono', monospace; --head: 'Syne', sans-serif;
+  }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--head);
+    min-height: 100dvh; display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start; padding: 0 16px 48px;
+  }
+  header {
+    width: 100%; max-width: 480px; padding: 28px 0 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .logo-mark {
+    width: 36px; height: 36px; background: var(--accent); border-radius: 8px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .logo-mark svg { width: 18px; height: 18px; }
+  .logo-text { font-size: 1rem; font-weight: 700; letter-spacing: -0.02em; }
+  .logo-text span { color: var(--muted); font-weight: 400; }
+
+  .card {
+    width: 100%; max-width: 480px; background: var(--surface);
+    border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 24px; margin-bottom: 16px;
+  }
+  .card-title { font-size: 1.25rem; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 6px; }
+  .card-sub { color: var(--muted); font-size: 0.8rem; line-height: 1.6; margin-bottom: 24px; font-family: var(--mono); }
+
+  .code-label { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 8px; display: block; }
+  .code-wrapper { position: relative; margin-bottom: 8px; }
+  #codeInput {
+    width: 100%; background: var(--bg); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 18px 56px 18px 20px;
+    color: var(--text); font-family: var(--mono); font-size: 1.6rem;
+    font-weight: 500; letter-spacing: 0.18em; text-align: center;
+    outline: none; transition: border-color .2s, box-shadow .2s; caret-color: var(--accent);
+  }
+  #codeInput::placeholder { color: #2a3040; letter-spacing: 0.18em; }
+  #codeInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(63,185,80,.12); }
+  #codeInput.err { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(248,81,73,.12); }
+  #codeInput.ok  { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(63,185,80,.12); }
+  .clear-btn {
+    position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+    background: none; border: none; cursor: pointer; color: var(--muted); display: none; padding: 4px;
+  }
+  .clear-btn:hover { color: var(--text); }
+  .clear-btn svg { width: 16px; height: 16px; display: block; }
+  .code-hint { font-family: var(--mono); font-size: 0.68rem; color: var(--muted); text-align: center; margin-bottom: 20px; }
+
+  #verifyBtn {
+    width: 100%; padding: 16px; background: var(--accent); color: #0d1117;
+    border: none; border-radius: 10px; font-family: var(--head); font-size: 0.95rem;
+    font-weight: 700; letter-spacing: 0.02em; cursor: pointer;
+    transition: background .15s, transform .1s, opacity .15s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  #verifyBtn:hover:not(:disabled) { background: #3dd94e; transform: translateY(-1px); }
+  #verifyBtn:disabled { opacity: 0.55; cursor: not-allowed; }
+  .spinner {
+    width: 18px; height: 18px; border: 2px solid rgba(0,0,0,.25);
+    border-top-color: #0d1117; border-radius: 50%;
+    animation: spin .7s linear infinite; display: none;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Bannière erreur réseau */
+  .conn-error {
+    width: 100%; max-width: 480px;
+    background: rgba(248,81,73,.08); border: 1px solid rgba(248,81,73,.3);
+    border-radius: 10px; padding: 14px 16px; margin-bottom: 16px;
+    font-family: var(--mono); font-size: 0.76rem; color: #f85149; display: none;
+  }
+  .conn-error.show { display: block; }
+
+  /* RÉSULTAT */
+  #result { display: none; }
+  .result-card { border-radius: 14px; overflow: hidden; border: 1.5px solid var(--border); }
+  .product-image-wrapper {
+    width: 100%; aspect-ratio: 4/3; background: #0d1117; position: relative; overflow: hidden;
+  }
+  .product-image-wrapper img {
+    width: 100%; height: 100%; object-fit: contain; padding: 12px;
+    transition: transform .3s ease;
+  }
+  .product-image-wrapper:hover img { transform: scale(1.04); }
+  .no-image {
+    width: 100%; height: 100%; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 8px; color: var(--muted);
+  }
+  .no-image svg { width: 40px; height: 40px; opacity: .4; }
+  .no-image span { font-family: var(--mono); font-size: 0.72rem; }
+
+  .status-badge {
+    position: absolute; top: 12px; left: 12px; padding: 5px 12px;
+    border-radius: 20px; font-family: var(--mono); font-size: 0.7rem;
+    font-weight: 500; letter-spacing: 0.05em;
+    display: flex; align-items: center; gap: 6px; backdrop-filter: blur(8px);
+  }
+  .status-badge.valid   { background: rgba(63,185,80,.18); color: #3fb950; border: 1px solid rgba(63,185,80,.3); }
+  .status-badge.invalid { background: rgba(248,81,73,.18); color: #f85149; border: 1px solid rgba(248,81,73,.3); }
+  .status-badge.used    { background: rgba(210,153,34,.18); color: #d29922; border: 1px solid rgba(210,153,34,.3); }
+  .badge-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .valid .badge-dot   { background: #3fb950; box-shadow: 0 0 6px #3fb950; }
+  .invalid .badge-dot { background: #f85149; box-shadow: 0 0 6px #f85149; }
+  .used .badge-dot    { background: #d29922; box-shadow: 0 0 6px #d29922; }
+
+  .product-info { padding: 20px; background: var(--surface); }
+  .product-name { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 8px; }
+  .result-msg { font-family: var(--mono); font-size: 0.78rem; line-height: 1.6; padding: 10px 14px; border-radius: 8px; margin-bottom: 12px; }
+  .result-msg.valid   { background: rgba(63,185,80,.08);  color: #3fb950; border: 1px solid rgba(63,185,80,.2); }
+  .result-msg.invalid { background: rgba(248,81,73,.08);  color: #f85149; border: 1px solid rgba(248,81,73,.2); }
+  .result-msg.used    { background: rgba(210,153,34,.08); color: #d29922; border: 1px solid rgba(210,153,34,.2); }
+  .result-detail { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); line-height: 1.7; }
+  .result-detail strong { color: var(--text); font-weight: 500; }
+
+  .try-again {
+    width: 100%; padding: 12px; background: transparent;
+    border: 1px solid var(--border); border-radius: 10px; color: var(--muted);
+    font-family: var(--head); font-size: 0.82rem; cursor: pointer;
+    transition: all .15s; margin-top: 16px;
+  }
+  .try-again:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* How it works */
+  .how-title { font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.1em; color: var(--muted); text-transform: uppercase; margin-bottom: 14px; }
+  .step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .step:last-child { margin-bottom: 0; }
+  .step-num {
+    width: 24px; height: 24px; background: rgba(63,185,80,.1);
+    border: 1px solid rgba(63,185,80,.25); border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--mono); font-size: 0.72rem; font-weight: 500;
+    color: var(--accent); flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text { font-family: var(--mono); font-size: 0.76rem; color: var(--muted); line-height: 1.6; }
+
+  .geoloc-notice {
+    font-family: var(--mono); font-size: 0.65rem; color: #3a4058;
+    text-align: center; margin-top: 8px;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+  }
+  footer {
+    max-width: 480px; width: 100%; text-align: center;
+    font-family: var(--mono); font-size: 0.68rem; color: #3a4058; padding-top: 8px;
+  }
+  @media (max-width: 400px) {
+    #codeInput { font-size: 1.3rem; letter-spacing: 0.12em; padding: 16px 48px 16px 12px; }
+    .card { padding: 20px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">
+    <svg viewBox="0 0 24 24" fill="none" stroke="#0d1117" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  </div>
+  <div class="logo-text">Vérif<span>Authenticité</span></div>
+</header>
+
+<!-- Bannière erreur réseau -->
+<div class="conn-error" id="connError"></div>
+
+<!-- FORMULAIRE -->
+<div class="card" id="inputCard">
+  <div class="card-title">Votre produit est-il authentique ?</div>
+  <p class="card-sub">Repérez le code imprimé à côté du QR code sur l'emballage et saisissez-le ci-dessous.</p>
+
+  <label class="code-label" for="codeInput">Code produit</label>
+  <div class="code-wrapper">
+    <input type="text" id="codeInput" inputmode="numeric"
+           placeholder="00000-00000" maxlength="11"
+           autocomplete="off" spellcheck="false"/>
+    <button class="clear-btn" id="clearBtn" onclick="clearCode()" aria-label="Effacer">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+  </div>
+  <p class="code-hint">Format : XXXXX-XXXXX &nbsp;·&nbsp; 10 chiffres séparés par un tiret</p>
+
+  <button id="verifyBtn" onclick="doVerify()">
+    <div class="spinner" id="spinner"></div>
+    <span id="btnText">Vérifier l'authenticité</span>
+  </button>
+
+  <p class="geoloc-notice">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;opacity:.5">
+      <circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+    </svg>
+    Votre position géographique peut être collectée à des fins statistiques anonymes.
+  </p>
+</div>
+
+<!-- RÉSULTAT -->
+<div id="result" class="card" style="padding:0">
+  <div class="result-card">
+    <div class="product-image-wrapper" id="productImageWrapper">
+      <div class="no-image" id="noImg">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <rect x="3" y="3" width="18" height="18" rx="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+        <span>Image non disponible</span>
+      </div>
+      <img id="productImg" src="" alt="" style="display:none"/>
+      <div class="status-badge" id="statusBadge">
+        <div class="badge-dot"></div>
+        <span id="statusText">—</span>
+      </div>
+    </div>
+    <div class="product-info">
+      <div class="product-name" id="productName">—</div>
+      <div class="result-msg"  id="resultMsg"></div>
+      <div class="result-detail" id="resultDetail"></div>
+    </div>
+  </div>
+  <button class="try-again" onclick="resetForm()">↩ Vérifier un autre code</button>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="card" id="howCard">
+  <div class="how-title">Comment ça marche</div>
+  <div class="step"><div class="step-num">1</div><div class="step-text">Trouvez le code à 10 chiffres imprimé à côté du QR code sur l'emballage du produit.</div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-text">Saisissez le code (format XXXXX-XXXXX) dans le champ ci-dessus.</div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-text">Le système affiche l'image et le nom du produit original pour confirmation visuelle.</div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-text">Chaque code ne peut être vérifié qu'<strong style="color:var(--text)">une seule fois</strong> — si le vôtre a déjà été utilisé, le produit peut être une contrefaçon.</div></div>
+</div>
+
+<footer>© TPE QR — Système d'authenticité · Données anonymisées</footer>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────────────────────────
+// Quand servie par FastAPI sur http://localhost:8000/verify
+// → window.location.origin = "http://localhost:8000"  → même origine → 0 CORS
+const ERP_BASE = (location.origin.startsWith('file') || location.origin === 'null')
+  ? 'http://localhost:8000'
+  : location.origin;
+
+// ── ÉTAT ─────────────────────────────────────────────────────────────────
+let isVerifying = false;
+let cachedLoc   = null;
+
+// ── INPUT ─────────────────────────────────────────────────────────────────
+const inp  = document.getElementById('codeInput');
+const clrB = document.getElementById('clearBtn');
+
+inp.addEventListener('input', () => {
+  let raw = inp.value.replace(/\D/g, '').slice(0, 10);
+  let fmt = raw.length > 5 ? raw.slice(0,5) + '-' + raw.slice(5) : raw;
+  if (inp.value !== fmt) inp.value = fmt;
+  clrB.style.display = fmt.length ? 'block' : 'none';
+  inp.classList.remove('err','ok');
+  hideError();
+  if (raw.length === 10) setTimeout(doVerify, 250);
+});
+
+inp.addEventListener('paste', e => {
+  e.preventDefault();
+  let pasted = (e.clipboardData || window.clipboardData).getData('text');
+  let digits = pasted.replace(/\D/g, '').slice(0, 10);
+  inp.value = digits.length > 5 ? digits.slice(0,5)+'-'+digits.slice(5) : digits;
+  clrB.style.display = inp.value.length ? 'block' : 'none';
+  if (digits.length === 10) setTimeout(doVerify, 250);
+});
+
+inp.addEventListener('keydown', e => { if (e.key === 'Enter') doVerify(); });
+
+function clearCode() {
+  inp.value = ''; inp.classList.remove('err','ok');
+  clrB.style.display = 'none'; hideError(); inp.focus();
+}
+function hideError() { document.getElementById('connError').classList.remove('show'); }
+
+// ── GÉOLOC ────────────────────────────────────────────────────────────────
+function getLoc() {
+  return new Promise(res => {
+    if (cachedLoc) return res(cachedLoc);
+    if (!navigator.geolocation) return res(null);
+    navigator.geolocation.getCurrentPosition(
+      p => { cachedLoc = {latitude: p.coords.latitude, longitude: p.coords.longitude}; res(cachedLoc); },
+      () => res(null),
+      { timeout: 5000, maximumAge: 300000 }
+    );
+  });
+}
+getLoc(); // pré-demande silencieuse
+
+// ── VÉRIFICATION ──────────────────────────────────────────────────────────
+async function doVerify() {
+  if (isVerifying) return;
+  const digits = inp.value.replace(/\D/g,'');
+  if (digits.length < 10) {
+    inp.classList.add('err');
+    inp.animate([
+      {transform:'translateX(0)'},{transform:'translateX(-6px)'},
+      {transform:'translateX(6px)'},{transform:'translateX(-4px)'},
+      {transform:'translateX(4px)'},{transform:'translateX(0)'}
+    ], {duration:380, easing:'ease-out'});
+    inp.focus(); return;
+  }
+
+  isVerifying = true; setLoading(true);
+  const loc  = await getLoc();
+  const code = inp.value.trim().toUpperCase();
+
+  try {
+    const body = { code };
+    if (loc) { body.latitude = loc.latitude; body.longitude = loc.longitude; }
+
+    const res = await fetch(`${ERP_BASE}/api/verify`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    showResult(await res.json(), code);
+    hideError();
+  } catch(err) {
+    const el = document.getElementById('connError');
+    el.textContent = `⚠ Erreur de connexion (${err.message}). Assurez-vous que le serveur tourne sur ${ERP_BASE} et ouvrez cette page via http://localhost:8000/verify`;
+    el.classList.add('show');
+    el.scrollIntoView({behavior:'smooth', block:'start'});
+  } finally {
+    setLoading(false); isVerifying = false;
+  }
+}
+
+// ── AFFICHAGE RÉSULTAT ────────────────────────────────────────────────────
+function showResult(data, code) {
+  const badge   = document.getElementById('statusBadge');
+  const badgeTx = document.getElementById('statusText');
+  const img     = document.getElementById('productImg');
+  const noImg   = document.getElementById('noImg');
+  const nameEl  = document.getElementById('productName');
+  const msgEl   = document.getElementById('resultMsg');
+  const detEl   = document.getElementById('resultDetail');
+
+  // Image
+  const imgUrl = data.product_image_url || data.product_image || null;
+  if (imgUrl) {
+    const full = imgUrl.startsWith('http') ? imgUrl : ERP_BASE + imgUrl;
+    img.src = full; img.alt = data.product_name || 'Produit';
+    img.style.display = 'block'; noImg.style.display = 'none';
+    img.onerror = () => { img.style.display='none'; noImg.style.display='flex'; };
+  } else { img.style.display='none'; noImg.style.display='flex'; }
+
+  nameEl.textContent = data.product_name || 'Produit inconnu';
+  badge.className = 'status-badge';
+
+  if (data.valid) {
+    badge.classList.add('valid'); badgeTx.textContent = 'Authentique'; inp.classList.add('ok');
+    msgEl.className = 'result-msg valid';
+    msgEl.textContent = data.message || 'Produit certifié authentique.';
+    detEl.innerHTML = `Code vérifié : <strong>${esc(code)}</strong><br>Ce produit est certifié authentique.<br><span style="color:#3fb950">Ce code est maintenant invalidé.</span>`;
+  } else if (data.already_used) {
+    badge.classList.add('used'); badgeTx.textContent = 'Déjà utilisé'; inp.classList.add('err');
+    msgEl.className = 'result-msg used';
+    msgEl.textContent = data.message || 'Ce code a déjà été utilisé.';
+    detEl.innerHTML = `Code : <strong>${esc(code)}</strong><br>${data.used_at?'Première vérification : <strong>'+esc(data.used_at.slice(0,10))+'</strong><br>':''}<span style="color:var(--warn)">⚠ Si vous venez d'acheter ce produit, il est peut-être contrefait.</span>`;
+  } else {
+    badge.classList.add('invalid'); badgeTx.textContent = 'Code invalide'; inp.classList.add('err');
+    msgEl.className = 'result-msg invalid';
+    msgEl.textContent = data.message || 'Code non reconnu.';
+    detEl.innerHTML = `Code saisi : <strong>${esc(code)}</strong><br>Vérifiez la saisie ou contactez le vendeur.`;
+  }
+
+  document.getElementById('inputCard').style.display = 'none';
+  document.getElementById('howCard').style.display   = 'none';
+  document.getElementById('result').style.display    = 'block';
+  document.getElementById('result').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+// ── RESET ─────────────────────────────────────────────────────────────────
+function resetForm() {
+  document.getElementById('result').style.display    = 'none';
+  document.getElementById('inputCard').style.display = 'block';
+  document.getElementById('howCard').style.display   = 'block';
+  inp.value = ''; inp.classList.remove('err','ok');
+  clrB.style.display = 'none'; hideError();
+  inp.focus(); window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── LOADING ───────────────────────────────────────────────────────────────
+function setLoading(on) {
+  const btn = document.getElementById('verifyBtn');
+  document.getElementById('spinner').style.display = on ? 'block' : 'none';
+  document.getElementById('btnText').textContent = on ? 'Vérification…' : "Vérifier l'authenticité";
+  btn.disabled = on;
+}
+
+// ── UTILS ─────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+window.addEventListener('load', () => {
+  inp.focus();
+  const p = new URLSearchParams(location.search);
+  if (p.get('code')) {
+    inp.value = p.get('code').replace(/\D/g,'').slice(0,10);
+    const d = inp.value; inp.value = d.length>5 ? d.slice(0,5)+'-'+d.slice(5) : d;
+    clrB.style.display = inp.value.length ? 'block' : 'none';
+    if (inp.value.replace(/\D/g,'').length === 10) setTimeout(doVerify, 500);
+  }
+});
+</script>
+</body>
+</html>
