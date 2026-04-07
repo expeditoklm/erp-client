@@ -1421,7 +1421,7 @@ async function generateAuthCodes() {
       if (!pid) return;
       try {
         const res = await apiFetch(`/api/products/${pid}/codes`);
-        console.log('Premier code:', JSON.stringify(res[0])); // ← AJOUTEZ CECI
+        console.log('Premier code:', JSON.stringify(res[0])); 
         const tbody = document.getElementById('auth-codes-tbody');
         if (!res.length) { tbody.innerHTML = '<tr><td colspan="5" class="empty">Aucun code</td></tr>'; return; }
         tbody.innerHTML = res.map(c => `<tr>
