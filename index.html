@@ -570,14 +570,266 @@
       line-height: 1.6;
       margin: 10px 0;
     }
+
+    .auth-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top left, rgba(79, 255, 176, 0.16), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(91, 156, 246, 0.14), transparent 28%),
+        rgba(10, 12, 18, 0.95);
+      backdrop-filter: blur(18px);
+    }
+
+    .auth-screen.hidden {
+      display: none;
+    }
+
+    .auth-shell-hidden .shell {
+      display: none;
+    }
+
+    .auth-panel {
+      width: min(980px, 100%);
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      background: rgba(19, 22, 30, 0.98);
+      border: 1px solid rgba(79, 255, 176, 0.18);
+      border-radius: 22px;
+      overflow: hidden;
+      box-shadow: 0 32px 70px rgba(0, 0, 0, 0.45);
+    }
+
+    .auth-copy {
+      padding: 42px;
+      background:
+        linear-gradient(160deg, rgba(79, 255, 176, 0.08), transparent 52%),
+        linear-gradient(180deg, rgba(255, 202, 58, 0.08), transparent 100%);
+      border-right: 1px solid var(--border);
+    }
+
+    .auth-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border: 1px solid rgba(79, 255, 176, 0.2);
+      border-radius: 999px;
+      color: var(--accent);
+      font-size: 0.72rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+
+    .auth-title {
+      font-family: var(--font-head);
+      font-size: clamp(2rem, 3vw, 3.2rem);
+      line-height: 0.95;
+      letter-spacing: -0.06em;
+      margin-bottom: 18px;
+    }
+
+    .auth-text {
+      color: #b2b8c8;
+      line-height: 1.7;
+      font-size: 0.92rem;
+      max-width: 36ch;
+    }
+
+    .auth-points {
+      margin-top: 28px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .auth-point {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: #cfd5e3;
+      font-size: 0.82rem;
+      line-height: 1.6;
+    }
+
+    .auth-form-wrap {
+      padding: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .auth-form {
+      width: min(360px, 100%);
+    }
+
+    .auth-form h2 {
+      font-family: var(--font-head);
+      font-size: 1.7rem;
+      letter-spacing: -0.05em;
+      margin-bottom: 10px;
+    }
+
+    .auth-form p {
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+
+    .auth-form .field {
+      margin-bottom: 14px;
+    }
+
+    .auth-form .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: #b6bfd3;
+      font-size: 0.72rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .auth-form .field input {
+      width: 100%;
+      background: #0f131c;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 13px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .auth-form .field input:focus {
+      border-color: rgba(79, 255, 176, 0.55);
+      box-shadow: 0 0 0 3px rgba(79, 255, 176, 0.08);
+    }
+
+    .auth-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .auth-error {
+      min-height: 18px;
+      margin-top: 12px;
+      color: #ff8b8b;
+      font-size: 0.76rem;
+      line-height: 1.5;
+    }
+
+    .session-card {
+      margin: 8px 20px 18px;
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      display: none;
+    }
+
+    .session-card.show {
+      display: block;
+    }
+
+    .session-label {
+      color: var(--muted);
+      font-size: 0.65rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+
+    .session-value {
+      color: var(--text);
+      font-size: 0.8rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .session-meta {
+      color: #9ba6bd;
+      font-size: 0.72rem;
+      margin-top: 8px;
+    }
+
+    .session-actions {
+      margin-top: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    @media (max-width: 860px) {
+      .auth-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .auth-copy {
+        border-right: 0;
+        border-bottom: 1px solid var(--border);
+      }
+    }
   </style>
 </head>
 
-<body>
+<body class="auth-shell-hidden">
+  <div class="auth-screen" id="auth-screen">
+    <div class="auth-panel">
+      <div class="auth-copy">
+        <div class="logo" style="padding:0;margin-bottom:18px">ERP<span>·SYS</span></div>
+        <div class="auth-kicker">Acces securise</div>
+        <div class="auth-title">Connecte ton espace web avec le meme compte que sur mobile.</div>
+        <div class="auth-text">
+          Le dashboard web utilise maintenant les endpoints JWT du backend. Les identifiants qui
+          fonctionnent dans l'APK mobile fonctionnent aussi ici.
+        </div>
+        <div class="auth-points">
+          <div class="auth-point">Utilise le meme email et le meme mot de passe que dans ton application mobile.</div>
+          <div class="auth-point">La session web se renouvelle automatiquement avec le refresh token quand c'est possible.</div>
+        <div class="auth-point">Le dashboard web ouvre une session JWT stockee en sessionStorage pour rester coherente avec le backend.</div>
+        </div>
+      </div>
+      <div class="auth-form-wrap">
+        <form class="auth-form" id="login-form">
+          <h2>Connexion</h2>
+          <p>Entre les identifiants de ta boutique pour ouvrir le dashboard web.</p>
+          <div class="field">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" autocomplete="username" placeholder="exemple@boutique.com" />
+          </div>
+          <div class="field">
+            <label for="login-password">Mot de passe</label>
+            <input id="login-password" type="password" autocomplete="current-password" placeholder="Mot de passe" />
+          </div>
+          <div class="auth-actions">
+            <button class="btn btn-primary" type="submit" id="login-submit">Se connecter</button>
+            <button class="btn btn-ghost" type="button" onclick="prefillDemoAdmin()">Compte demo</button>
+          </div>
+          <div class="auth-error" id="login-error"></div>
+        </form>
+      </div>
+    </div>
+  </div>
   <div class="shell">
     <!-- SIDEBAR -->
     <aside class="sidebar">
       <div class="logo">ERP<span>·SYS</span></div>
+      <div class="session-card" id="session-card">
+        <div class="session-label">Session active</div>
+        <div class="session-value" id="session-user">Non connecte</div>
+        <div class="session-meta" id="session-company">Aucune boutique</div>
+        <div class="session-actions">
+          <button class="btn btn-ghost" type="button" onclick="logout()" style="width:100%">Deconnexion</button>
+        </div>
+      </div>
       <div class="nav-item active" onclick="showPage('dashboard')" id="nav-dashboard">
         <span class="nav-icon">▦</span> Dashboard
       </div>
@@ -604,8 +856,11 @@
       <div id="page-dashboard">
         <div class="topbar">
           <div class="page-title">Dashboard</div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-ghost" type="button" onclick="logout()">Déconnexion</button>
           <div class="api-badge">
             <div class="dot" id="api-status-dot"></div><span id="api-status-text">Connexion…</span>
+          </div>
           </div>
         </div>
         <div class="stats-grid">
@@ -758,7 +1013,7 @@
             ]
             }</div>
           <div style="font-size:0.72rem;color:var(--muted);margin-top:4px">Header requis : <span
-              style="color:var(--accent3)">X-API-Key: erp-secret-key-2024</span></div>
+              style="color:var(--accent3)">Authorization: Bearer &lt;jwt&gt;</span></div>
         </div>
         <div class="section">
           <div class="section-header">
@@ -931,9 +1186,9 @@
             </div>
           </div>
           <div class="field">
-            <label>API Key (X-API-Key)</label>
+            <label>Session web</label>
             <div class="config-row">
-              <input id="cfg-key" value="erp-secret-key-2024" />
+              <input id="cfg-session-mode" value="JWT stocke en sessionStorage" readonly />
             </div>
           </div>
           <div style="margin-top:16px;display:flex;gap:10px">
@@ -1006,19 +1261,197 @@
 
   <script>
     // ─── CONFIG ──────────────────────────────────────────────
-    let BASE_URL = localStorage.getItem('erp_url') || 'http://localhost:8000';
-    let API_KEY = localStorage.getItem('erp_key') || 'erp-secret-key-2024';
+    const DEFAULT_BASE_URL =
+      window.location.protocol.startsWith('http') && window.location.origin !== 'null'
+        ? window.location.origin
+        : 'http://localhost:8000';
+    let BASE_URL = localStorage.getItem('erp_url') || DEFAULT_BASE_URL;
+    const ACCESS_TOKEN_KEY = 'erp_access_token_v2';
+    const REFRESH_TOKEN_KEY = 'erp_refresh_token_v2';
+    const SESSION_KEY = 'erp_session_v2';
+    let accessToken = sessionStorage.getItem(ACCESS_TOKEN_KEY) || '';
+    let refreshToken = sessionStorage.getItem(REFRESH_TOKEN_KEY) || '';
+    let sessionState = null;
+    let refreshPromise = null;
     let allProducts = [];
     let allSales = [];
     let webhookLog = [];
 
-    const headers = () => ({ 'Content-Type': 'application/json', 'X-API-Key': API_KEY });
+    function authHeaders(includeContentType = true) {
+      const headers = {};
+      if (includeContentType) headers['Content-Type'] = 'application/json';
+      if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+      return headers;
+    }
+
+    function persistSession() {
+      if (accessToken) sessionStorage.setItem(ACCESS_TOKEN_KEY, accessToken);
+      else sessionStorage.removeItem(ACCESS_TOKEN_KEY);
+      if (refreshToken) sessionStorage.setItem(REFRESH_TOKEN_KEY, refreshToken);
+      else sessionStorage.removeItem(REFRESH_TOKEN_KEY);
+      if (sessionState) sessionStorage.setItem(SESSION_KEY, JSON.stringify(sessionState));
+      else sessionStorage.removeItem(SESSION_KEY);
+    }
+
+    function setAuthVisible(visible) {
+      document.getElementById('auth-screen').classList.toggle('hidden', !visible);
+      document.body.classList.toggle('auth-shell-hidden', visible);
+    }
+
+    function renderSession() {
+      const cached = sessionState || JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+      const user = cached?.email || 'Non connecte';
+      const companyBits = [cached?.company_name || '', cached?.role || '', cached?.plan ? `plan ${cached.plan}` : '']
+        .filter(Boolean);
+      document.getElementById('session-user').textContent = user;
+      document.getElementById('session-company').textContent = companyBits.join(' • ') || 'Aucune boutique';
+    }
+
+    function setSession(tokenPayload) {
+      accessToken = tokenPayload.access_token || '';
+      refreshToken = tokenPayload.refresh_token || refreshToken || '';
+      sessionState = {
+        email: tokenPayload.email || document.getElementById('login-email')?.value?.trim() || '',
+        company_id: tokenPayload.company_id || '',
+        company_name: tokenPayload.company_name || '',
+        role: tokenPayload.role || '',
+        plan: tokenPayload.plan || '',
+      };
+      persistSession();
+      renderSession();
+      setAuthVisible(false);
+    }
+
+    function clearSession() {
+      accessToken = '';
+      refreshToken = '';
+      sessionState = null;
+      persistSession();
+      renderSession();
+    }
+
+    function setLoginError(message = '') {
+      document.getElementById('login-error').textContent = message;
+    }
+
+    function setLoginBusy(isBusy) {
+      const btn = document.getElementById('login-submit');
+      btn.disabled = isBusy;
+      btn.textContent = isBusy ? 'Connexion...' : 'Se connecter';
+    }
+
+    function prefillDemoAdmin() {
+      document.getElementById('login-email').value = 'admin@demo.tpe-qr.com';
+      document.getElementById('login-password').value = 'AdminDemo123!';
+      setLoginError('');
+    }
+
+    async function refreshAccessToken() {
+      if (!refreshToken) return false;
+      if (refreshPromise) return refreshPromise;
+
+      refreshPromise = (async () => {
+        try {
+          const res = await fetch(BASE_URL + '/auth/refresh', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ refresh_token: refreshToken }),
+          });
+          if (!res.ok) throw new Error('Session expirée');
+          const payload = await res.json();
+          setSession({ ...payload, email: sessionState?.email || '' });
+          return true;
+        } catch (e) {
+          clearSession();
+          setAuthVisible(true);
+          setLoginError('Ta session a expiré. Reconnecte-toi pour continuer.');
+          return false;
+        } finally {
+          refreshPromise = null;
+        }
+      })();
+
+      return refreshPromise;
+    }
+
+    async function login(event) {
+      event.preventDefault();
+      setLoginError('');
+      setLoginBusy(true);
+      try {
+        const payload = {
+          email: document.getElementById('login-email').value.trim(),
+          password: document.getElementById('login-password').value,
+        };
+        const res = await fetch(BASE_URL + '/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.detail || 'Connexion impossible');
+        setSession({ ...data, email: payload.email });
+        toast('Connexion reussie', 'ok');
+        refreshAll();
+      } catch (e) {
+        setLoginError(e.message || 'Connexion impossible');
+      } finally {
+        setLoginBusy(false);
+      }
+    }
+
+    async function loadCurrentSession() {
+      if (!accessToken) {
+        clearSession();
+        return false;
+      }
+      try {
+        const me = await apiFetch('/auth/me', { skipAuthRetry: true });
+        sessionState = {
+          email: me.email,
+          company_id: me.company_id,
+          company_name: sessionState?.company_name || me.company_id,
+          role: me.role,
+          plan: sessionState?.plan || '',
+        };
+        persistSession();
+        renderSession();
+        setAuthVisible(false);
+        return true;
+      } catch (e) {
+        const refreshed = await refreshAccessToken();
+        if (!refreshed) {
+          clearSession();
+          return false;
+        }
+        const me = await apiFetch('/auth/me', { skipAuthRetry: true });
+        sessionState = {
+          email: me.email,
+          company_id: me.company_id,
+          company_name: sessionState?.company_name || me.company_id,
+          role: me.role,
+          plan: sessionState?.plan || '',
+        };
+        persistSession();
+        renderSession();
+        setAuthVisible(false);
+        return true;
+      }
+    }
+
+    function logout() {
+      if (!window.confirm('Voulez-vous vraiment vous deconnecter du dashboard web ?')) {
+        return;
+      }
+      clearSession();
+      setAuthVisible(true);
+      setLoginError('');
+      setApiStatus(false, 'Authentification requise');
+    }
 
     function saveConfig() {
       BASE_URL = document.getElementById('cfg-url').value.trim().replace(/\/$/, '');
-      API_KEY = document.getElementById('cfg-key').value.trim();
       localStorage.setItem('erp_url', BASE_URL);
-      localStorage.setItem('erp_key', API_KEY);
       document.getElementById('api-doc-block').textContent =
         `Docs Swagger : ${BASE_URL}/docs\nDocs ReDoc   : ${BASE_URL}/redoc\nHealth       : ${BASE_URL}/health`;
       toast('Configuration sauvegardée', 'ok');
@@ -1028,6 +1461,11 @@
 
     // ─── NAVIGATION ─────────────────────────────────────────
     function showPage(page) {
+      if (!accessToken && page !== 'config') {
+        setAuthVisible(true);
+        setApiStatus(false, 'Authentification requise');
+        return;
+      }
       ['dashboard', 'products', 'sales', 'webhook', 'authenticity', 'config'].forEach(p => {
         document.getElementById('page-' + p).style.display = p === page ? '' : 'none';
         document.getElementById('nav-' + p).classList.toggle('active', p === page);
@@ -1039,18 +1477,53 @@
       if (page === 'authenticity') { loadAuthStats(); populateAuthSelects(); loadVerifLogs(); }
       if (page === 'config') {
         document.getElementById('cfg-url').value = BASE_URL;
-        document.getElementById('cfg-key').value = API_KEY;
+        document.getElementById('cfg-session-mode').value = 'JWT stocke en sessionStorage';
         document.getElementById('api-doc-block').textContent =
           `Docs Swagger : ${BASE_URL}/docs\nDocs ReDoc   : ${BASE_URL}/redoc\nHealth       : ${BASE_URL}/health`;
       }
     }
 
     // ─── API HELPERS ─────────────────────────────────────────
+    function describeApiError(err) {
+      if (!err) return 'Erreur inconnue';
+      if (err.isNetworkError) return 'Backend non joignable';
+      if (err.status === 401) return 'Authentification requise : verifie le JWT ou la cle API';
+      if (err.status === 403) return 'Acces refuse : permissions insuffisantes';
+      return err.message || 'Erreur API';
+    }
+
+    function requiresAuth(path) {
+      return path.startsWith('/api/') || path === '/auth/me';
+    }
+
     async function apiFetch(path, opts = {}) {
-      const res = await fetch(BASE_URL + path, { headers: headers(), ...opts });
+      const { skipAuthRetry = false, ...fetchOptions } = opts;
+      if (requiresAuth(path) && !accessToken) {
+        const authErr = new Error('Authentification requise');
+        authErr.status = 401;
+        throw authErr;
+      }
+      const requestHeaders = { ...authHeaders(true), ...(fetchOptions.headers || {}) };
+      let res;
+      try {
+        res = await fetch(BASE_URL + path, { ...fetchOptions, headers: requestHeaders });
+      } catch (cause) {
+        const err = new Error('Backend non joignable');
+        err.isNetworkError = true;
+        err.cause = cause;
+        throw err;
+      }
+      if (res.status === 401 && accessToken && !skipAuthRetry) {
+        const refreshed = await refreshAccessToken();
+        if (refreshed) {
+          return apiFetch(path, { ...fetchOptions, skipAuthRetry: true });
+        }
+      }
       if (!res.ok) {
         const err = await res.json().catch(() => ({ detail: res.statusText }));
-        throw new Error(err.detail || 'Erreur API');
+        const apiErr = new Error(err.detail || 'Erreur API');
+        apiErr.status = res.status;
+        throw apiErr;
       }
       return res.json();
     }
@@ -1104,9 +1577,10 @@
         }
         setApiStatus(true);
       } catch (e) {
-        setApiStatus(false);
-        document.getElementById('low-stock-tbody').innerHTML = `<tr><td colspan="4" class="empty">Backend non joignable</td></tr>`;
-        document.getElementById('recent-sales-tbody').innerHTML = `<tr><td colspan="5" class="empty">Backend non joignable</td></tr>`;
+        const msg = describeApiError(e);
+        setApiStatus(!e.isNetworkError, e.isNetworkError ? 'Backend non joignable' : 'Backend connecte, authentification requise');
+        document.getElementById('low-stock-tbody').innerHTML = `<tr><td colspan="4" class="empty">${msg}</td></tr>`;
+        document.getElementById('recent-sales-tbody').innerHTML = `<tr><td colspan="5" class="empty">${msg}</td></tr>`;
       }
     }
 
@@ -1206,7 +1680,7 @@
           fd.append('file', imgFile);
           await fetch(BASE_URL + '/api/products/' + savedId + '/image', {
             method: 'POST',
-            headers: { 'X-API-Key': API_KEY },
+            headers: authHeaders(false),
             body: fd,
           });
           toast('Image uploadée', 'ok');
@@ -1335,9 +1809,9 @@
     function closeModal(id) { document.getElementById(id).classList.remove('show'); }
     function fmtPrice(n) { return new Intl.NumberFormat('fr-FR').format(n || 0) + ' FCFA'; }
     function fmtDate(d) { return d ? new Date(d).toLocaleString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'; }
-    function setApiStatus(ok) {
+    function setApiStatus(ok, message = null) {
       document.getElementById('api-status-dot').className = 'dot' + (ok ? '' : ' red');
-      document.getElementById('api-status-text').textContent = ok ? 'Backend connecté' : 'Backend non joignable';
+      document.getElementById('api-status-text').textContent = message || (ok ? 'Backend connecté' : 'Backend non joignable');
     }
     function toast(msg, type = 'ok') {
       const el = document.createElement('div');
@@ -1353,10 +1827,18 @@
         toast('Connexion OK', 'ok');
         setApiStatus(true);
         refreshAll();
-      } catch (e) { toast('Backend non joignable : ' + e.message, 'err'); setApiStatus(false); }
+      } catch (e) {
+        toast(describeApiError(e), 'err');
+        setApiStatus(false);
+      }
     }
 
-    function refreshAll() { loadDashboard(); loadProducts(); loadSales(); }
+    function refreshAll() {
+      if (!accessToken) return;
+      loadDashboard();
+      loadProducts();
+      loadSales();
+    }
 
     // ─── AUTHENTICITÉ ────────────────────────────────────────────────────────────
     let lastAuthCodes = [];
@@ -1470,9 +1952,21 @@ async function generateAuthCodes() {
 
     // ─── INIT ────────────────────────────────────────────────
     document.getElementById('webhook-url').value = BASE_URL + '/api/webhook/sale';
-    loadDashboard();
-    loadProducts();
+    document.getElementById('login-form').addEventListener('submit', login);
+    renderSession();
+
+    (async () => {
+      const hasSession = await loadCurrentSession();
+      if (hasSession) {
+        setAuthVisible(false);
+        refreshAll();
+      } else {
+        setAuthVisible(true);
+        setApiStatus(false, 'Authentification requise');
+      }
+    })();
   </script>
 </body>
 
 </html>
+
